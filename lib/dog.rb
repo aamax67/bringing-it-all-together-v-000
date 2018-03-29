@@ -49,7 +49,7 @@ attr_accessor :name, :breed, :id
   end
 
   def self.create(name:, breed:)
-    dog = Dog.new(name, breed)
+    dog = Dog.new(name: name, breed: breed)
     dog.save
     dog
   end
@@ -64,7 +64,7 @@ attr_accessor :name, :breed, :id
     dog = DB[:conn].execute("SELECT * FROM dogs WHERE name = ? AND breed = ?", name, breed)
     if !dog.empty?
       dog_data = dog[0]
-      dog = Dog.new(dog_data[0], dog_data[1], dog_data[2])
+      dog = Dog.new(id: dog_data[0], name: dog_data[1], breed: dog_data[2])
     else
       dog = self.create(name: name, breed: breed)
     end
@@ -72,9 +72,16 @@ attr_accessor :name, :breed, :id
   end
 
   def self.find_by_name(name)
-    sql = "SELECT * FROM dogs WHERE name = ?"
-    result = DB[:conn].execute(sql, name)[0]
-    Dog.new(result[0], result[1], result[2])
+    sql = <<-SQL
+    SELECT *
+    FROM dogs
+    WHERE name = ?
+    LIMIT 1
+    SQL
+
+    DB[:conn].execute(sql, name).map |row|
+      self.new_from_db(row)
+    end.first
   end
 
   def update
