@@ -30,10 +30,13 @@ attr_accessor :name, :breed, :id
     id = row[0]
     name = row[1]
     grade = row[2]
-    self.new(id, name, breed)
+    self.new(id: id, name: name, breed: breed)
   end
 
   def save
+    if self.id
+      self.update
+    else
     sql = <<-SQL
       INSERT INTO dogs (name, breed)
       VALUES (?, ?)
@@ -41,5 +44,6 @@ attr_accessor :name, :breed, :id
 
     DB[:conn].execute(sql, self.name, self.breed)
     @id = DB[:conn].execute("SELECT last_insert_rowid() FROM dogs")[0][0]
+    end
   end
 end
