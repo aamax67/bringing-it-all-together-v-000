@@ -21,7 +21,7 @@ attr_accessor :name, :breed, :id
 
   def self.drop_table
     sql = <<-SQL
-      DROP TABLE dogs
+      DROP TABLE IF EXISTS dogs
     SQL
     DB[:conn].execute(sql)
   end
@@ -45,5 +45,6 @@ attr_accessor :name, :breed, :id
     DB[:conn].execute(sql, self.name, self.breed)
     @id = DB[:conn].execute("SELECT last_insert_rowid() FROM dogs")[0][0]
     end
+    self
   end
 end
